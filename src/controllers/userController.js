@@ -60,6 +60,8 @@ function crearUsuarioDefecto(req, res) {
     var user = new User();
     user.nombre = "admin"
     user.rol = "admin"
+    user.email = "administracion@kinal.edu.gt"
+    user.usuario = "admin"
     var password = "admin"
 
 
@@ -87,7 +89,7 @@ function login(req, res){
         if(usuario.rol == "estudiante" || usuario.rol == "catedratico"){
             tipoUsuario = 'Bienvenido '  + usuario.nombre
         }else{
-            tipoUsuario = 'Admin'
+            tipoUsuario = 'admin'
         }
     
     if(usuario){
@@ -113,12 +115,13 @@ function login(req, res){
 
 
 function editarUsuario(req, res){
-    var userId = req.user.sub
+    var userId = req.params.id
     var params = req.body
 
+    if(req.user.rol != "admin") return res.send({ message: "Debes ser administrador para editar" })
     //Borrar la propiedad de password y de rol
     delete params.rol
-    delete params.password
+    delete params.carnetCui
 
     //if(req.user.rol != "ROLE_CLIENTE") return res.status(500).send({ message: "No puedes editar tu usuario de administrador" })
 
@@ -149,7 +152,7 @@ function editarClientes(req, res) {
 
 
 
-function eliminarUsuario(req, res) {
+/* function eliminarUsuario(req, res) {
     var userId = req.user.sub
 
     //if(req.user.rol != 'ROLE_CLIENTE') return res.status(500).send({ message: 'No puedes eliminar tu usuario :P' })
@@ -159,13 +162,13 @@ function eliminarUsuario(req, res) {
         if(!usuarioActualizado) return res.status(404).send({ message: 'no se ha podido eliminar el usuario' })
         return res.status(200).send({ message: 'usuario eliminado' })
     })
-}
+} */
 
-function eliminarClientes(req, res) {
+function eliminarUsuario(req, res) {
     var userRol = req.user.rol      
     var userId = req.params.id
 
-    if(userRol == 'ROLE_CLIENTE') return res.send({ message: 'No tienes permiso de eliminar otros ususarios' })
+    if(userRol != 'admin') return res.send({ message: 'No tienes permiso de eliminar otros ususarios' })
 
     User.findById(userId, (err, usuarioEncontrado)=>{
         if(err) return res.status(500).send({ message: 'error en la petición de usuarios' })    
@@ -393,6 +396,5 @@ module.exports={
     eliminarUsuario,
     editarUsuario,
     editarClientes,
-    eliminarClientes,
     createPDF
 }
