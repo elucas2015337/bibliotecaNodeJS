@@ -3,7 +3,7 @@
 //IMPORTS
 var bcrypt = require('bcrypt-nodejs')
 var User =  require('../models/user')
-var Producto = require('../models/producto')
+var Producto = require('../models/libro')
 var Factura = require('../models/factura')
 var jwt  = require("../services/jwt")
 var path = require('path')
@@ -130,6 +130,65 @@ function editarUsuario(req, res){
         if(!usuarioActualizado) return res.status(404).send({ message: 'no se ha podido editar el usuario' })
         return res.status(200).send({ user: usuarioActualizado })
     })
+}
+//Para ver los usuarios se debe escoger una manera de ordenarlo, se deben colocar en el postman nombre, apellido y rol, cada uno se ordena 
+//0 = descendente,  1 = ascendente, si no se escoge ninguno se ordena por nombre ascendente, no se pueden esocger mas de una manera de ordenarlo
+function showUser(req, res) {
+    
+    var nombre  = req.body.nombre;
+    var apellido = req.body.apellido;
+    var rol = req.body.rol;
+
+    if (req.user.rol != "admin") return res.send({ message: "No tienes permitido utilizar esta función" })
+
+    
+    //if(nombre != undefined) return res.send({ message: "indefinido" })
+    //return res.send({ message: nombre + " " + apellido + " " + rol})
+        if(nombre && apellido  || apellido && rol || nombre && apellido && rol || nombre && rol ){
+            return res.status(500).send({message: 'escoga solo una manera'})
+        }else if (nombre == 1) {
+            User.find({}).sort({nombre: 1}).exec( (err, usuariosEncontrados)=>{
+                  if(err) return res.status(500).send({ message: 'Error en la peticion de usuarios' })
+                 if(!usuariosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 return res.status(200).send({ usuarios: usuariosEncontrados })
+             })
+        }else if(nombre == 0){
+            User.find({}).sort({nombre: -1}).exec( (err, usuariosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de usuarios' })
+                if(!usuariosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ usuarios: usuariosEncontrados })
+            })
+        }else if(apellido == 1){
+            User.find({}).sort({apellido: 1}).exec( (err, usuariosEncontrados)=>{
+                 if(err) return res.status(500).send({ message: 'Error en la peticion de usuarios' })
+                 if(!usuariosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 return res.status(200).send({ usuarios: usuariosEncontrados })
+             })
+        }else if(apellido == 0){
+            User.find({}).sort({apellido: -1}).exec( (err, usuariosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de usuarios' })
+                if(!usuariosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ usuarios: usuariosEncontrados })
+            })
+        }else if(rol == 1){
+            User.find({}).sort({rol: 1}).exec( (err, usuariosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de usuarios' })
+                if(!usuariosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ usuarios: usuariosEncontrados })
+            })
+        }else if(rol == 0){
+            User.find({}).sort({rol: -1}).exec( (err, usuariosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de usuarios' })
+                if(!usuariosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ usuarios: usuariosEncontrados })
+            })
+        }else{
+            User.find({}).sort({nombre: 1}).exec( (err, usuariosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de usuarios' })
+               if(!usuariosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+               return res.status(200).send({ usuarios: usuariosEncontrados })
+           })
+        }
 }
 
 function editarClientes(req, res) {
@@ -391,6 +450,7 @@ function createPDF(req, res){
 
 module.exports={
     registrar,
+    showUser,
     login,
     crearUsuarioDefecto,
     eliminarUsuario,
