@@ -4,7 +4,7 @@
 var bcrypt = require('bcrypt-nodejs')
 var User =  require('../models/user')
 var Producto = require('../models/libro')
-var Factura = require('../models/factura')
+
 var jwt  = require("../services/jwt")
 var path = require('path')
 var fs = require('fs')
@@ -244,7 +244,7 @@ function eliminarUsuario(req, res) {
 }
 
 ///////////////////////////////añadir al carrito y comprar////////////////////////////
-
+/* 
 function añadirCarrito(req, res) {
     var productoId = req.body.productoId
     var cantidad = req.body.cantidad
@@ -446,7 +446,7 @@ function createPDF(req, res){
     }
     })   
 }
-
+ */
 
 module.exports={
     registrar,
@@ -455,6 +455,5 @@ module.exports={
     crearUsuarioDefecto,
     eliminarUsuario,
     editarUsuario,
-    editarClientes,
-    createPDF
+    editarClientes
 }

@@ -11,7 +11,7 @@ function agregarLibro(req, res) {
     var params = req.body
 
 
-    if(req.user.rol != "admin") return res.send({ message: 'No tienen permiso de crear categorias' })
+    if(req.user.rol != "admin") return res.send({ message: 'No tienen permiso de agregar libros' })
 
         if(params.titulo){
            
@@ -41,7 +41,7 @@ function agregarLibro(req, res) {
                             if(libroGuardado){
                                 res.status(200).send({libro: libroGuardado})
                             }else{
-                                res.status(404).send({message: 'no se ha guardar el libro'})
+                                res.status(404).send({message: 'no se ha podido guardar el libro'})
                             }
                             
                         })
@@ -57,17 +57,6 @@ function agregarLibro(req, res) {
     
 }
 
-function crearCategoriaDefecto() {
-    var categoria = new Categoria();
-    categoria.nombreCategoria = "defaultCategory"
-    categoria.descripcionCategoria = "categoria default para productos sin categoría"
-
-    Categoria.countDocuments({nombreCategoria: 'defaultCategory', descripcionCategoria: 'categoria default para productos sin categoría'}, (err, categoriaDefault)=>{
-     if(categoriaDefault == 0){
-        categoria.save()
-     }
-    })
-}
 
 function editarLibro(req, res) {
     var datos = req.body;
@@ -90,7 +79,7 @@ function editarLibro(req, res) {
 function eliminarLibro(req, res) {
     var libroID = req.params.id;
 
-        if(req.user.rol != 'admin') return res.send({ message: 'No tienes permiso para eliminar la categoria' })
+        if(req.user.rol != 'admin') return res.send({ message: 'No tienes permiso para eliminar los libros' })
         Libro.findById(libroID, (err, libroEncontrado)=>{
             if(err) return res.status(500).send({ message: 'error en la peticion de libros' })
             if(!libroEncontrado) return res.status(404).send({ message: 'Error al listar los libros' })
