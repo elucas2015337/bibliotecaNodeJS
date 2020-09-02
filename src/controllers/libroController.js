@@ -2,7 +2,7 @@
 
 var Libro = require('../models/libro')
 //var Producto = require('../models/')
-var User = require('../models/user');
+//var Libro = require('../models/user');
 const { param } = require('../routes/userRoutes');
 //var Producto = require('../models/producto')
 
@@ -93,15 +93,106 @@ function eliminarLibro(req, res) {
     
 }
 
-function listarCategorias(req, res) {
+/* function listarCategorias(req, res) {
 
     Categoria.find({}, (err, categoriasEncontradas)=>{
         if(err) return res.status(500).send({ message: 'error en la petición de categorias' })
         if(!categoriasEncontradas) return res.status(404).send({ message: 'Error al listar las categorias' })
         return res.status(200).send({ categoriasEncontradas })
     })
+} */
+
+//
+
+function buscarlibro(req, res) {
+    var params = req.body;
+    var parametro = params.parametro;
+    
+    if (parametro == null) {
+
+        Libro.find({}, (err, todosLibros) =>{
+                if(err) return res.status(500).send({ message: 'error en la peticion' })
+                return res.status(200).send({libros: todosLibros })
+            })
+
+    }else{
+        Libro.find({$or:
+                [{titulo: {$regex: parametro, $options: "i"}},
+                 {autor: {$regex: parametro, $options: "i"}},
+                {palabrasClave:{$regex: parametro, $options: "i"}},
+                {descripcion:{$regex: parametro, $options: "i"}},
+                {temas:{$regex: parametro, $options: "i"}}
+                ]}, (err, librosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'error en la peticion de libros' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'no se han podido listar los libros' })
+                    Libro.findById(parametro, (err, empleadosID)=>{
+                        
+                        if(empleadosID) return res.status(200).send({ empleado: empleadosID })
+                        return res.status(200).send({empleados: librosEncontrados})
+                    })
+        
+            })
+        
+    }
 }
 
+function mostrarLibros(req, res) {
+    
+    var id  = req.body.id;
+    var copias = req.body.copias;
+    var disponibles = req.body.disponibles;
+
+    if (req.user.rol != "admin") return res.send({ message: "No tienes permitido utilizar esta función" })
+
+    
+    //if(id != undefined) return res.send({ message: "indefinido" })
+    //return res.send({ message: id + " " + copias + " " + disponibles})
+        if(id && copias  || copias && disponibles || id && copias && disponibles || id && disponibles ){
+            return res.status(500).send({message: 'escoga solo una manera'})
+        }else if (id == 1) {
+            Libro.find({}).sort({id: 1}).exec( (err, librosEncontrados)=>{
+                  if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
+                 if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 return res.status(200).send({ libros: librosEncontrados })
+             })
+        }else if(id == 0){
+            Libro.find({}).sort({id: -1}).exec( (err, librosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ libros: librosEncontrados })
+            })
+        }else if(copias == 1){
+            Libro.find({}).sort({copias: 1}).exec( (err, librosEncontrados)=>{
+                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
+                 if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 return res.status(200).send({ libros: librosEncontrados })
+             })
+        }else if(copias == 0){
+            Libro.find({}).sort({copias: -1}).exec( (err, librosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ libros: librosEncontrados })
+            })
+        }else if(disponibles == 1){
+            Libro.find({}).sort({disponibles: 1}).exec( (err, librosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ libros: librosEncontrados })
+            })
+        }else if(disponibles == 0){
+            Libro.find({}).sort({disponibles: -1}).exec( (err, librosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                return res.status(200).send({ libros: librosEncontrados })
+            })
+        }else{
+            Libro.find({}).sort({id: 1}).exec( (err, librosEncontrados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
+               if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+               return res.status(200).send({ libros: librosEncontrados })
+           })
+        }
+}
 
 
 
@@ -111,5 +202,6 @@ module.exports={
     agregarLibro,
     editarLibro,
     eliminarLibro,
-    listarCategorias
+    mostrarLibros,
+    buscarlibro
 }
