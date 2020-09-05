@@ -1,6 +1,7 @@
 'use strict'
 
 var Revista = require('../models/revista')
+var User = require('../models/user')
 //var Producto = require('../models/')
 
 const { param } = require('../routes/userRoutes');
@@ -196,9 +197,44 @@ function mostrarRevistas(req, res) {
         }
 }
 
+function prestarRevista(req, res) {
+    var revistaId = req.body.revistaId
+    var tipoBibliografia = "revista"
 
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); 
+    var yyyy = today.getFullYear();
 
+    var fecha = mm + '/' + dd + '/' + yyyy
+    
+    if(req.user.rol == 'admin') return res.send({ message: 'Este usuario no tiene permitido prestar revistas' })
+    Revista.findById(revistaId, (err, revistaEncontrada)=>{
+        if(err) return res.status(500).send({ message: 'error en la petición de revistas' })
+        if(!revistaEncontrada) return res.status(404).send({ message: 'error al listar las revistas' })
+        
+        User.countDocuments({_id: req.user.sub, "prestamos.codigoBibliografia": revistaId}, (err, libroYaRegistrado)=>{
+            if(err) return res.status(500).send({ message: 'error en la peticion de usuarios' })
+            User.findById(req.user.sub, (err, usuarioEncontrado)=>{
+                if(usuarioEncontrado.prestamos.length >= 10) return res.send({ message: "no puedes prestar mas revistas" })
+            
+            if(libroYaRegistrado == 0){
+                if(revistaEncontrada.disponibles == 0) return res.send({ message: 'No hay unidades de esta revista' })
+                User.findByIdAndUpdate(req.user.sub, { $push: { prestamos: { titulo: revistaEncontrada.titulo, autor: revistaEncontrada.autor, fechaPrestamo: fecha, codigoBibliografia: revistaEncontrada._id, tipo: tipoBibliografia } } }, {new: true}, (err, prestamoActualizado) =>{
+                    if(err) return res.status(500).send({ message: 'Error en la peticion de usuario' })
+                    if(!prestamoActualizado) return res.status(404).send({ message: 'error al agregar la revista al prestamo' })
+                    Revista.updateOne({_id: revistaId}, {$inc:{prestados: 1, disponibles: -1}}).exec();
+                    return res.status(200).send({ prestamoActualizado })
+                })
+            }else{
+                return res.send({ message: "No puede prestar la misma revista" })
+                
+            }
 
+        })
+        })
+    })
+}
 
 module.exports={
     agregarRevista,
@@ -206,5 +242,6 @@ module.exports={
     eliminarRevista,
     listarCategorias,
     mostrarRevistas,
-    buscarRevista
+    buscarRevista,
+    prestarRevista
 }

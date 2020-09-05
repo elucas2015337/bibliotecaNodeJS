@@ -8,6 +8,7 @@ var md_auth = require('../middlewares/authenticated')
 //RUTAS
 var api = express.Router();
 api.post('/crearLibro', md_auth.ensureAuth, libroController.agregarLibro)
+api.post('/prestarLibro', md_auth.ensureAuth, libroController.prestarLibro)
 api.put('/editarLibro/:id', md_auth.ensureAuth, libroController.editarLibro)
 api.delete('/eliminarLibro/:id', md_auth.ensureAuth, libroController.eliminarLibro)
 //api.get('/listarCategorias', libroController.listarCategorias)

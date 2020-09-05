@@ -13,7 +13,8 @@ var UserSchema = Schema({
     rol: String,
     prestamos: [{
         titulo: String,
-        autor: Number,
+        tipo: String,
+        autor: String,
         fechaPrestamo: Date,
         codigoBibliografia: { type: Schema.ObjectId, ref: 'producto' },
     }],

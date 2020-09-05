@@ -1,10 +1,11 @@
 'use strict'
 
 var Libro = require('../models/libro')
-//var Producto = require('../models/')
+var User = require('../models/user')
+//var Libro = require('../models/')
 //var Libro = require('../models/user');
 const { param } = require('../routes/userRoutes');
-//var Producto = require('../models/producto')
+//var Libro = require('../models/producto')
 
 function agregarLibro(req, res) {
     var libro = new Libro();
@@ -194,6 +195,44 @@ function mostrarLibros(req, res) {
         }
 }
 
+function prestarLibro(req, res) {
+    var libroId = req.body.libroId
+    var tipoBibliografia = "libro"
+
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); 
+    var yyyy = today.getFullYear();
+
+    var fecha = mm + '/' + dd + '/' + yyyy
+    
+    if(req.user.rol == 'admin') return res.send({ message: 'Este usuario no tiene permitido prestar libros' })
+    Libro.findById(libroId, (err, libroEncontrado)=>{
+        if(err) return res.status(500).send({ message: 'error en la petición de libros' })
+        if(!libroEncontrado) return res.status(404).send({ message: 'error al listar los libros' })
+        
+        User.countDocuments({_id: req.user.sub, "prestamos.codigoBibliografia": libroId}, (err, libroYaRegistrado)=>{
+            if(err) return res.status(500).send({ message: 'error en la peticion de usuarios' })
+            User.findById(req.user.sub, (err, usuarioEncontrado)=>{
+                if(usuarioEncontrado.prestamos.length >= 10) return res.send({ message: "no puedes prestar mas libros" })
+            
+            if(libroYaRegistrado == 0){
+                if(libroEncontrado.disponibles == 0) return res.send({ message: 'No hay unidades de este libro' })
+                User.findByIdAndUpdate(req.user.sub, { $push: { prestamos: { titulo: libroEncontrado.titulo, autor: libroEncontrado.autor, fechaPrestamo: fecha, codigoBibliografia: libroEncontrado._id, tipo: tipoBibliografia } } }, {new: true}, (err, prestamoActualizado) =>{
+                    if(err) return res.status(500).send({ message: 'Error en la peticion de usuario' })
+                    if(!prestamoActualizado) return res.status(404).send({ message: 'error al agregar el libro al prestamo' })
+                    Libro.updateOne({_id: revistaId}, {$inc:{prestados: 1, disponibles: -1}}).exec();
+                    return res.status(200).send({ prestamoActualizado })
+                })
+            }else{
+                return res.send({ message: "No puede prestar el mismo libro" })
+                
+            }
+
+        })
+        })
+    })
+}
 
 
 
@@ -203,5 +242,6 @@ module.exports={
     editarLibro,
     eliminarLibro,
     mostrarLibros,
-    buscarlibro
+    buscarlibro,
+    prestarLibro
 }

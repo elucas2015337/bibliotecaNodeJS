@@ -11,7 +11,8 @@ var LibroSchema = Schema({
     descripcion: String,
     temas: String,
     copias: Number,
-    disponibles: Number
+    disponibles: Number,
+    prestados: Number
 
 })
 

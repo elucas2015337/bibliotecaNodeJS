@@ -13,7 +13,8 @@ var RevistaSchema = Schema({
     copias: Number,
     disponibles: Number,
     frecuencia: String,
-    ejemplares: Number
+    ejemplares: Number,
+    prestados: Number
 
 })
 
