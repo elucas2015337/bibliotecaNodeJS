@@ -236,6 +236,30 @@ function prestarRevista(req, res) {
     })
 }
 
+function devolverRevista(req, res){
+    var revistaId = req.body.revistaId
+
+    if(revistaId){
+        Revista.findById(revistaId, (err, revistaEncontrada)=>{
+            if(err) return res.status(500).send({ message: "Error en la peticion de revistas" })
+            if(!revistaEncontrada) return res.status(404).send({ message: "No se ha encontrado la revistas" })
+            User.countDocuments({_id: req.user.sub, "prestamos.codigoBibliografia": revistaId}, (err, libroDevolver)=>{
+                if(libroDevolver > 0){
+                    Revista.updateOne({_id: revistaId}, {$inc:{disponibles: 1}}).exec();
+                    User.updateOne({_id: req.user.sub, prestamos:{$elemMatch: {codigoBibliografia: revistaId}}}, {$pull:{prestamos:{codigoBibliografia: revistaId}}}, (err, libroBorrado)=>{
+                        return res.status(200).send({ message: "Has devuelto " + revistaEncontrada.titulo })
+                    })
+
+                }else{
+                    return res.send({ message: "No puedes devolver una revista que aun no has prestado" })
+                }
+            })
+        })
+    }else{
+        return res.send({ message: 'ingrese el Id de la revista a devolver'})
+    }
+}
+
 module.exports={
     agregarRevista,
     editarRevista,
@@ -243,5 +267,6 @@ module.exports={
     listarCategorias,
     mostrarRevistas,
     buscarRevista,
-    prestarRevista
+    prestarRevista,
+    devolverRevista
 }

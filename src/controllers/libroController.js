@@ -221,7 +221,7 @@ function prestarLibro(req, res) {
                 User.findByIdAndUpdate(req.user.sub, { $push: { prestamos: { titulo: libroEncontrado.titulo, autor: libroEncontrado.autor, fechaPrestamo: fecha, codigoBibliografia: libroEncontrado._id, tipo: tipoBibliografia } } }, {new: true}, (err, prestamoActualizado) =>{
                     if(err) return res.status(500).send({ message: 'Error en la peticion de usuario' })
                     if(!prestamoActualizado) return res.status(404).send({ message: 'error al agregar el libro al prestamo' })
-                    Libro.updateOne({_id: revistaId}, {$inc:{prestados: 1, disponibles: -1}}).exec();
+                    Libro.updateOne({_id: libroId}, {$inc:{prestados: 1, disponibles: -1}}).exec();
                     return res.status(200).send({ prestamoActualizado })
                 })
             }else{
@@ -234,7 +234,29 @@ function prestarLibro(req, res) {
     })
 }
 
+function devolverLibro(req, res){
+    var libroId = req.body.libroId
 
+    if(libroId){
+        Libro.findById(libroId, (err, libroEncontrado)=>{
+            if(err) return res.status(500).send({ message: "Error en la peticion de libros" })
+            if(!libroEncontrado) return res.status(404).send({ message: "No se ha encontrado el libro" })
+            User.countDocuments({_id: req.user.sub, "prestamos.codigoBibliografia": libroId}, (err, libroDevolver)=>{
+                if(libroDevolver > 0){
+                    Libro.updateOne({_id: libroId}, {$inc:{disponibles: 1}}).exec();
+                    User.updateOne({_id: req.user.sub, prestamos:{$elemMatch: {codigoBibliografia: libroId}}}, {$pull:{prestamos:{codigoBibliografia: libroId}}}, (err, libroBorrado)=>{
+                        return res.status(200).send({ message: "Has devuelto " + libroEncontrado.titulo })
+                    })
+
+                }else{
+                    return res.send({ message: "No puedes devolver un libro que aún no has prestado" })
+                }
+            })
+        })
+    }else{
+        return res.send({ message: 'ingrese el Id del libro a devolver'})
+    }
+}
 
 
 module.exports={
@@ -243,5 +265,6 @@ module.exports={
     eliminarLibro,
     mostrarLibros,
     buscarlibro,
-    prestarLibro
+    prestarLibro,
+    devolverLibro
 }

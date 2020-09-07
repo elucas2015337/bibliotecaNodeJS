@@ -14,4 +14,5 @@ api.delete('/eliminarLibro/:id', md_auth.ensureAuth, libroController.eliminarLib
 //api.get('/listarCategorias', libroController.listarCategorias)
 api.get('/mostrarLibros', md_auth.ensureAuth, libroController.mostrarLibros)
 api.get('/buscarLibro', libroController.buscarlibro)
+api.put('/devolverLibro', md_auth.ensureAuth, libroController.devolverLibro)
 module.exports = api;

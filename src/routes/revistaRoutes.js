@@ -14,6 +14,7 @@ api.delete('/eliminarRevista/:id', md_auth.ensureAuth, RevistaController.elimina
 api.get('/mostrarRevistas', md_auth.ensureAuth, RevistaController.mostrarRevistas)
 api.get('/buscarRevistas', RevistaController.buscarRevista)
 api.post('/prestarRevista', md_auth.ensureAuth, RevistaController.prestarRevista)
+api.put('/devolverRevista', md_auth.ensureAuth, RevistaController.devolverRevista)
 //api.get('/listarProductos', RevistaController.listarProductos)
 //api.get('/buscarProductosNombre', RevistaController.buscarProductoNombre)
 //api.get('/productosAgotados', md_auth.ensureAuth, RevistaController.productosAgotados)
