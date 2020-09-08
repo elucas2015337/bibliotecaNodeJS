@@ -15,9 +15,5 @@ api.get('/mostrarRevistas', md_auth.ensureAuth, RevistaController.mostrarRevista
 api.get('/buscarRevistas', RevistaController.buscarRevista)
 api.post('/prestarRevista', md_auth.ensureAuth, RevistaController.prestarRevista)
 api.put('/devolverRevista', md_auth.ensureAuth, RevistaController.devolverRevista)
-//api.get('/listarProductos', RevistaController.listarProductos)
-//api.get('/buscarProductosNombre', RevistaController.buscarProductoNombre)
-//api.get('/productosAgotados', md_auth.ensureAuth, RevistaController.productosAgotados)
-//api.get('/productosMasVendidos', md_auth.ensureAuth, RevistaController.productosMasVendidos)
 
 module.exports = api;

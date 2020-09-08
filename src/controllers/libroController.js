@@ -2,6 +2,7 @@
 
 var Libro = require('../models/libro')
 var User = require('../models/user')
+var Busqueda = require('../models/buscados')
 //var Libro = require('../models/')
 //var Libro = require('../models/user');
 const { param } = require('../routes/userRoutes');
@@ -133,8 +134,28 @@ function buscarlibro(req, res) {
                     })
         
             })
+            guardarBusqueda(req, res);
         
     }
+}
+
+//recopilación de palabras mas usadas para las busquedas
+
+function guardarBusqueda(req, res){
+    var busqueda = new Busqueda();
+    var params = req.body
+
+    busqueda.parametro = params.parametro,
+    busqueda.numeroBusquedas = 1
+
+    Busqueda.findOne({parametro: params.parametro}, (err, busquedaEncontrada)=>{
+        if(err) return res.status(500).send({ message: "error en la petición de busquedas" })
+        if(busquedaEncontrada){
+            Busqueda.updateOne({_id: busquedaEncontrada._id}, {$inc:{numeroBusquedas: 1}}).exec();
+        }else if(!busquedaEncontrada){
+            busqueda.save();
+        }
+    })
 }
 
 function mostrarLibros(req, res) {

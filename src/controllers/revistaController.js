@@ -97,14 +97,6 @@ function eliminarRevista(req, res) {
     
 }
 
-function listarCategorias(req, res) {
-
-    Categoria.find({}, (err, categoriasEncontradas)=>{
-        if(err) return res.status(500).send({ message: 'error en la petición de categorias' })
-        if(!categoriasEncontradas) return res.status(404).send({ message: 'Error al listar las categorias' })
-        return res.status(200).send({ categoriasEncontradas })
-    })
-}
 
 function buscarRevista(req, res) {
     var params = req.body;
@@ -264,7 +256,6 @@ module.exports={
     agregarRevista,
     editarRevista,
     eliminarRevista,
-    listarCategorias,
     mostrarRevistas,
     buscarRevista,
     prestarRevista,
