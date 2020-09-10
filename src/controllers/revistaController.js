@@ -2,6 +2,7 @@
 
 var Revista = require('../models/revista')
 var User = require('../models/user')
+var Busqueda = require('../models/buscados')
 //var Producto = require('../models/')
 
 const { param } = require('../routes/userRoutes');
@@ -126,8 +127,30 @@ function buscarRevista(req, res) {
                     })
         
             })
+
+            guardarBusqueda(req, res);
         
     }
+}
+
+//recopilación de palabras mas usadas para las busquedas
+
+function guardarBusqueda(req, res){
+    var busqueda = new Busqueda();
+    var params = req.body
+
+    busqueda.parametro = params.parametro,
+    busqueda.numeroBusquedas = 1,
+    busqueda.tipo = "revista"
+
+    Busqueda.findOne({parametro: params.parametro, tipo: "revista"}, (err, busquedaEncontrada)=>{
+        if(err) return res.status(500).send({ message: "error en la petición de busquedas" })
+        if(busquedaEncontrada){
+            Busqueda.updateOne({_id: busquedaEncontrada._id}, {$inc:{numeroBusquedas: 1}}).exec();
+        }else if(!busquedaEncontrada){
+            busqueda.save();
+        }
+    })
 }
 
 
@@ -147,43 +170,43 @@ function mostrarRevistas(req, res) {
         }else if (id == 1) {
             Revista.find({}).sort({id: 1}).exec( (err, revistasEncontradas)=>{
                   if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                 if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar las revistas' })
                  return res.status(200).send({ libros: revistasEncontradas })
              })
         }else if(id == 0){
             Revista.find({}).sort({id: -1}).exec( (err, revistasEncontradas)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar las revistas' })
                 return res.status(200).send({ libros: revistasEncontradas })
             })
         }else if(copias == 1){
             Revista.find({}).sort({copias: 1}).exec( (err, revistasEncontradas)=>{
                  if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                 if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar las revistas' })
                  return res.status(200).send({ libros: revistasEncontradas })
              })
         }else if(copias == 0){
             Revista.find({}).sort({copias: -1}).exec( (err, revistasEncontradas)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar las revistas' })
                 return res.status(200).send({ libros: revistasEncontradas })
             })
         }else if(disponibles == 1){
             Revista.find({}).sort({disponibles: 1}).exec( (err, revistasEncontradas)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar las revistas' })
                 return res.status(200).send({ libros: revistasEncontradas })
             })
         }else if(disponibles == 0){
             Revista.find({}).sort({disponibles: -1}).exec( (err, revistasEncontradas)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar las revistas' })
                 return res.status(200).send({ libros: revistasEncontradas })
             })
         }else{
             Revista.find({}).sort({id: 1}).exec( (err, revistasEncontradas)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-               if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+               if(!revistasEncontradas) return res.status(404).send({ message: 'No se han podido listar las revistas' })
                return res.status(200).send({ libros: revistasEncontradas })
            })
         }

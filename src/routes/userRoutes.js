@@ -12,14 +12,9 @@ var api = express.Router();
 api.post('/registrar', md_auth.ensureAuth, UserController.registrar)
 api.post('/login', UserController.login)
 api.put('/editarUsuario/:id', md_auth.ensureAuth, UserController.editarUsuario)
-//api.put('/editarClientes/:id', md_auth.ensureAuth, UserController.editarClientes)
 api.delete('/eliminarUsuario/:id', md_auth.ensureAuth, UserController.eliminarUsuario)
 api.get('/mostrarUsuarios', md_auth.ensureAuth, UserController.showUser)
 api.post('/agregarRevistaLibro', md_auth.ensureAuth, UserController.agregarRevistaLibro)
-//api.put('/agregar_a_Carrito', md_auth.ensureAuth, UserController.añadirCarrito)
-//api.put('/comprar', md_auth.ensureAuth, UserController.comprar)
-//api.get('/facturasXcliente', md_auth.ensureAuth, UserController.facturasUsuario)
-//api.get('/productosXfactura', md_auth.ensureAuth, UserController.productoXFactura)
-//api.post('/crearPDF', UserController.createPDF)
+api.post('/crearPDF', UserController.crearPDF)
 
 module.exports = api;

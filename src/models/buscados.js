@@ -5,7 +5,8 @@ var Schema = mongoose.Schema;
 
 var BuscadosSchema = Schema({
     parametro: String,
-    numeroBusquedas: Number
+    numeroBusquedas: Number,
+    tipo: String
 
 })
 

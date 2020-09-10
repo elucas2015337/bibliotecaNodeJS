@@ -5,13 +5,16 @@ var bcrypt = require('bcrypt-nodejs')
 var User =  require('../models/user')
 var libroController = require('./libroController')
 var revistaController = require('./revistaController')
-var Producto = require('../models/libro')
+var Libro = require('../models/libro')
+var Revista = require('../models/revista')
+var Busqueda = require('../models/buscados')
+const { jsPDF } = require("jspdf");
+require('jsPDF-autoTable')
 
 var jwt  = require("../services/jwt")
 var path = require('path')
 var fs = require('fs')
-
-var pdf = require("pdfkit")
+const revista = require('../models/revista')
 
 function registrar(req, res){
     var user = new User();
@@ -261,6 +264,92 @@ function agregarRevistaLibro(req, res){
 }
 
 
+function crearPDF(req, res){
+    const doc = new jsPDF()
+    //const auto = new autoTable()
+    
+    Busqueda.find({tipo: "libro"}).sort({numeroBusquedas: -1}).exec((err, librosMasBuscados)=>{
+        if(err) return res.status(500).send({ message: 'Error en la peticion de busquedas' })
+        if(!librosMasBuscados) return res.status(404).send({ message: 'No se han podido listar las busquedas' })
+        Busqueda.find({tipo: "revista"}).sort({numeroBusquedas: -1}).exec((err, revistasMasBuscadas)=>{
+            if(err) return res.status(500).send({ message: 'Error en la petición de busquedas' })
+            if(!revistasMasBuscadas) return res.status(404).send({ message: "No se han podido listar las busquedas" })
+            Libro.find({}).sort({prestados: -1}).exec((err, librosMasPrestados)=>{
+                if(err) return res.status(500).send({ message: 'Error en la petición de busquedas' })
+                if(!librosMasPrestados) return res.status(404).send({ message: "No se han podido listar las busquedas" })
+                Revista.find({}).sort({prestados: -1}).exec((err, revistasMasPrestadas)=>{
+                    if(err) return res.status(500).send({ message: 'Error en la petición de busquedas' })
+                    if(!revistasMasPrestadas) return res.status(404).send({ message: "No se han podido listar las busquedas" })
+
+                    const doc = new jsPDF()
+                        doc.autoTable({ html: '#my-table' })
+                        doc.text("                                          Top 5 libros mas prestados", 10, 17);
+                        doc.autoTable({
+                        head: [['Autor', 'Título', 'Edición', 'Cantidad Prestada']],
+                        margin: { top: 10 },
+                        body: [
+                        [librosMasPrestados[0].autor, librosMasPrestados[0].titulo, librosMasPrestados[0].edicion, librosMasPrestados[0].prestados],
+                        [librosMasPrestados[1].autor, librosMasPrestados[1].titulo, librosMasPrestados[1].edicion, librosMasPrestados[1].prestados],
+                        [librosMasPrestados[2].autor, librosMasPrestados[2].titulo, librosMasPrestados[2].edicion, librosMasPrestados[2].prestados],
+                        [librosMasPrestados[3].autor, librosMasPrestados[3].titulo, librosMasPrestados[3].edicion, librosMasPrestados[3].prestados],
+                        [librosMasPrestados[4].autor, librosMasPrestados[4].titulo, librosMasPrestados[4].edicion, librosMasPrestados[4].prestados],
+    
+                        ],
+                        })
+
+                        doc.text("                                          Top 5 revistas mas prestadas", 10, 72);
+                        doc.autoTable({
+                        head: [['Autor', 'Título', 'Edición', 'Cantidad Prestada']],
+                        margin: { top: 10 },
+                        body: [
+                        [revistasMasPrestadas[0].autor, revistasMasPrestadas[0].titulo, revistasMasPrestadas[0].edicion, revistasMasPrestadas[0].prestados],
+                        [revistasMasPrestadas[1].autor, revistasMasPrestadas[1].titulo, revistasMasPrestadas[1].edicion, revistasMasPrestadas[1].prestados],
+                        [revistasMasPrestadas[2].autor, revistasMasPrestadas[2].titulo, revistasMasPrestadas[2].edicion, revistasMasPrestadas[2].prestados],
+                        [revistasMasPrestadas[3].autor, revistasMasPrestadas[3].titulo, revistasMasPrestadas[3].edicion, revistasMasPrestadas[3].prestados],
+                        [revistasMasPrestadas[4].autor, revistasMasPrestadas[4].titulo, revistasMasPrestadas[4].edicion, revistasMasPrestadas[4].prestados],
+    
+                        ],
+                        })
+                        
+                        doc.text("                                          Top 5 busquedas en libros", 10, 125);
+                        doc.autoTable({
+                            head: [['Busqueda', 'Numero de Busquedas']],
+                            margin: { top: 10 },
+                            body: [
+                            [librosMasBuscados[0].parametro, librosMasBuscados[0].numeroBusquedas],
+                            [librosMasBuscados[1].parametro, librosMasBuscados[1].numeroBusquedas],
+                            [librosMasBuscados[2].parametro, librosMasBuscados[2].numeroBusquedas],
+                            [librosMasBuscados[3].parametro, librosMasBuscados[3].numeroBusquedas],
+                            [librosMasBuscados[4].parametro, librosMasBuscados[4].numeroBusquedas],
+        
+                            ],
+                            })
+
+                        doc.text("                                          Top 5 busquedas en revistas", 10, 178);
+                        doc.autoTable({
+                            head: [['Busqueda', 'Numero de Busquedas']],
+                            //margin: { top: 5 },
+                            body: [
+                            [revistasMasBuscadas[0].parametro, revistasMasBuscadas[0].numeroBusquedas],
+                            [revistasMasBuscadas[1].parametro, revistasMasBuscadas[1].numeroBusquedas],
+                            [revistasMasBuscadas[2].parametro, revistasMasBuscadas[2].numeroBusquedas],
+                            [revistasMasBuscadas[3].parametro, revistasMasBuscadas[3].numeroBusquedas],
+                            [revistasMasBuscadas[4].parametro, revistasMasBuscadas[4].numeroBusquedas],
+        
+                            ],
+                            })
+ 
+                        doc.save('table.pdf')
+
+                        return res.send({ message: "Quiza funcionó" })
+                    
+                })
+            })
+        })
+   })
+}
+
+
 module.exports={
     registrar,
     showUser,
@@ -269,5 +358,6 @@ module.exports={
     eliminarUsuario,
     editarUsuario,
     editarClientes,
-    agregarRevistaLibro
+    agregarRevistaLibro,
+    crearPDF
 }

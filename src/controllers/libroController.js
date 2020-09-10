@@ -3,10 +3,8 @@
 var Libro = require('../models/libro')
 var User = require('../models/user')
 var Busqueda = require('../models/buscados')
-//var Libro = require('../models/')
-//var Libro = require('../models/user');
-const { param } = require('../routes/userRoutes');
-//var Libro = require('../models/producto')
+const { param } = require('../routes/userRoutes')
+
 
 function agregarLibro(req, res) {
     var libro = new Libro();
@@ -146,9 +144,10 @@ function guardarBusqueda(req, res){
     var params = req.body
 
     busqueda.parametro = params.parametro,
-    busqueda.numeroBusquedas = 1
+    busqueda.numeroBusquedas = 1,
+    busqueda.tipo = "libro"
 
-    Busqueda.findOne({parametro: params.parametro}, (err, busquedaEncontrada)=>{
+    Busqueda.findOne({parametro: params.parametro, tipo: "libro"}, (err, busquedaEncontrada)=>{
         if(err) return res.status(500).send({ message: "error en la petición de busquedas" })
         if(busquedaEncontrada){
             Busqueda.updateOne({_id: busquedaEncontrada._id}, {$inc:{numeroBusquedas: 1}}).exec();
@@ -174,43 +173,43 @@ function mostrarLibros(req, res) {
         }else if (id == 1) {
             Libro.find({}).sort({id: 1}).exec( (err, librosEncontrados)=>{
                   if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                 if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los libros' })
                  return res.status(200).send({ libros: librosEncontrados })
              })
         }else if(id == 0){
             Libro.find({}).sort({id: -1}).exec( (err, librosEncontrados)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los libros' })
                 return res.status(200).send({ libros: librosEncontrados })
             })
         }else if(copias == 1){
             Libro.find({}).sort({copias: 1}).exec( (err, librosEncontrados)=>{
                  if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                 if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                 if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los libros' })
                  return res.status(200).send({ libros: librosEncontrados })
              })
         }else if(copias == 0){
             Libro.find({}).sort({copias: -1}).exec( (err, librosEncontrados)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los libros' })
                 return res.status(200).send({ libros: librosEncontrados })
             })
         }else if(disponibles == 1){
             Libro.find({}).sort({disponibles: 1}).exec( (err, librosEncontrados)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los libros' })
                 return res.status(200).send({ libros: librosEncontrados })
             })
         }else if(disponibles == 0){
             Libro.find({}).sort({disponibles: -1}).exec( (err, librosEncontrados)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+                if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los libros' })
                 return res.status(200).send({ libros: librosEncontrados })
             })
         }else{
             Libro.find({}).sort({id: 1}).exec( (err, librosEncontrados)=>{
                 if(err) return res.status(500).send({ message: 'Error en la peticion de libros' })
-               if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los hote;es' })
+               if(!librosEncontrados) return res.status(404).send({ message: 'No se han podido listar los libros' })
                return res.status(200).send({ libros: librosEncontrados })
            })
         }
