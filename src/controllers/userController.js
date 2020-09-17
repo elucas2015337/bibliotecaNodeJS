@@ -281,6 +281,9 @@ function crearPDF(req, res){
                     if(err) return res.status(500).send({ message: 'Error en la petición de busquedas' })
                     if(!revistasMasPrestadas) return res.status(404).send({ message: "No se han podido listar las busquedas" })
 
+                    if(librosMasBuscados.length < 5 || revistasMasBuscadas.length < 5 || librosMasPrestados.length < 5 || revistasMasPrestadas.length < 5) return res.send({ message: "deben haber al menos 5 registros de revistas y libros y 5 busquedas de revistas y libros" })
+                    //return res.send({ message: librosMasBuscados.length })
+
                     const doc = new jsPDF()
                         doc.autoTable({ html: '#my-table' })
                         doc.text("                                          Top 5 libros mas prestados", 10, 17);
