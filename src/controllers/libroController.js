@@ -4,6 +4,7 @@ var Libro = require('../models/libro')
 var User = require('../models/user')
 var Busqueda = require('../models/buscados')
 const { param } = require('../routes/userRoutes')
+const libro = require('../models/libro')
 
 
 function agregarLibro(req, res) {
@@ -125,10 +126,10 @@ function buscarlibro(req, res) {
                 ]}, (err, librosEncontrados)=>{
                 if(err) return res.status(500).send({ message: 'error en la peticion de libros' })
                 if(!librosEncontrados) return res.status(404).send({ message: 'no se han podido listar los libros' })
-                    Libro.findById(parametro, (err, empleadosID)=>{
+                    Libro.findById(parametro, (err, librosID)=>{
                         
-                        if(empleadosID) return res.status(200).send({ empleado: empleadosID })
-                        return res.status(200).send({empleados: librosEncontrados})
+                        if(librosID) return res.status(200).send({ Libros: librosID })
+                        return res.status(200).send({libros: librosEncontrados})
                     })
         
             })
@@ -242,7 +243,7 @@ function prestarLibro(req, res) {
                     if(err) return res.status(500).send({ message: 'Error en la peticion de usuario' })
                     if(!prestamoActualizado) return res.status(404).send({ message: 'error al agregar el libro al prestamo' })
                     Libro.updateOne({_id: libroId}, {$inc:{prestados: 1, disponibles: -1}}).exec();
-                    return res.status(200).send({ prestamoActualizado })
+                    return res.status(200).send({ message: "has prestado: " + libroEncontrado.titulo +" de " + libroEncontrado.autor })
                 })
             }else{
                 return res.send({ message: "No puede prestar el mismo libro" })
@@ -265,7 +266,7 @@ function devolverLibro(req, res){
                 if(libroDevolver > 0){
                     Libro.updateOne({_id: libroId}, {$inc:{disponibles: 1}}).exec();
                     User.updateOne({_id: req.user.sub, prestamos:{$elemMatch: {codigoBibliografia: libroId}}}, {$pull:{prestamos:{codigoBibliografia: libroId}}}, (err, libroBorrado)=>{
-                        return res.status(200).send({ message: "Has devuelto " + libroEncontrado.titulo })
+                        return res.status(200).send({ message: "Has devuelto " + libroEncontrado.titulo + " de " + libroEncontrado.autor })
                     })
 
                 }else{

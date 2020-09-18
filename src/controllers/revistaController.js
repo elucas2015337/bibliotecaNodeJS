@@ -120,10 +120,10 @@ function buscarRevista(req, res) {
                 ]}, (err, revistasEncontradas)=>{
                 if(err) return res.status(500).send({ message: 'error en la peticion de revistas' })
                 if(!revistasEncontradas) return res.status(404).send({ message: 'no se han podido listar las Revistas' })
-                    Revista.findById(parametro, (err, empleadosID)=>{
+                    Revista.findById(parametro, (err, librosID)=>{
                         
-                        if(empleadosID) return res.status(200).send({ empleado: empleadosID })
-                        return res.status(200).send({empleados: revistasEncontradas})
+                        if(librosID) return res.status(200).send({ revista: librosID })
+                        return res.status(200).send({revistas: revistasEncontradas})
                     })
         
             })
@@ -239,7 +239,7 @@ function prestarRevista(req, res) {
                     if(err) return res.status(500).send({ message: 'Error en la peticion de usuario' })
                     if(!prestamoActualizado) return res.status(404).send({ message: 'error al agregar la revista al prestamo' })
                     Revista.updateOne({_id: revistaId}, {$inc:{prestados: 1, disponibles: -1}}).exec();
-                    return res.status(200).send({ prestamoActualizado })
+                    return res.status(200).send({ message: "has prestado: " + revistaEncontrada.titulo + " de " + revistaEncontrada.autor })
                 })
             }else{
                 return res.send({ message: "No puede prestar la misma revista" })
@@ -262,7 +262,7 @@ function devolverRevista(req, res){
                 if(libroDevolver > 0){
                     Revista.updateOne({_id: revistaId}, {$inc:{disponibles: 1}}).exec();
                     User.updateOne({_id: req.user.sub, prestamos:{$elemMatch: {codigoBibliografia: revistaId}}}, {$pull:{prestamos:{codigoBibliografia: revistaId}}}, (err, libroBorrado)=>{
-                        return res.status(200).send({ message: "Has devuelto " + revistaEncontrada.titulo })
+                        return res.status(200).send({ message: "Has devuelto " + revistaEncontrada.titulo + " de " + revistaEncontrada.autor})
                     })
 
                 }else{
