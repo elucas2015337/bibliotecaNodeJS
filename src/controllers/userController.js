@@ -344,7 +344,7 @@ function crearPDF(req, res){
  
                         doc.save('table.pdf')
 
-                        return res.send({ message: "Quiza funcionó" })
+                        return res.send({ message: "Reporte Guardado" })
                     
                 })
             })
